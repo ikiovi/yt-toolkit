@@ -1,7 +1,7 @@
 services:
     yt-info-api:
         build:
-            context: .
+            context: ./youtubeijs-info-api
             dockerfile: Dockerfile
         stop_signal: SIGINT
         restart: on-failure
