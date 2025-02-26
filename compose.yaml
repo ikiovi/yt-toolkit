@@ -1,0 +1,7 @@
+services:
+    yt-info-api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        stop_signal: SIGINT
+        restart: on-failure
