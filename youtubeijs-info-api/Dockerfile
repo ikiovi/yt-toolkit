@@ -14,6 +14,5 @@ WORKDIR /app
 COPY --link package*.json ./
 COPY --from=appbuild /app/node_modules ./node_modules
 COPY --from=appbuild /app/out ./out
-COPY --from=appbuild /app/locales ./locales
 
 ENTRYPOINT ["npm", "start"]
