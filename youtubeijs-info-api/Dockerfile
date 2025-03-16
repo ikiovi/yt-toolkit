@@ -1,4 +1,4 @@
-FROM node:23.7.0-alpine as appbuild
+FROM node:23.7.0-alpine AS appbuild
 
 WORKDIR /app
 COPY --link package*.json ./
