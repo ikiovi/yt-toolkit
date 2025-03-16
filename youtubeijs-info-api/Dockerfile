@@ -1,4 +1,4 @@
-FROM node:23.7.0-alpine as appbuild
+FROM node:23.7.0-alpine AS appbuild
 
 WORKDIR /app
 COPY --link package*.json ./
@@ -6,7 +6,6 @@ RUN npm ci --omit=dev
 COPY --link . .
 
 RUN npm run build
-
 
 FROM node:23.7.0-alpine
 

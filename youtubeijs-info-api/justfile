@@ -1,0 +1,5 @@
+docker-build USER VERSION:
+    docker build . -t {{USER}}/yt-toolkit-yt-info-api:{{VERSION}}
+
+docker-push USER VERSION:
+    docker push {{USER}}/yt-toolkit-yt-info-api:{{VERSION}}
