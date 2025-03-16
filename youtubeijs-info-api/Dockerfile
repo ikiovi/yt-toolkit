@@ -7,7 +7,6 @@ COPY --link . .
 
 RUN npm run build
 
-
 FROM node:23.7.0-alpine
 
 WORKDIR /app
