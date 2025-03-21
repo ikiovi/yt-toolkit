@@ -1,9 +1,23 @@
-import { Innertube, UniversalCache } from 'youtubei.js';
+import { Innertube, IStreamingData, UniversalCache } from 'youtubei.js';
 
 type InnerTubeClient = Required<Parameters<Innertube['getInfo']>[1]>;
 type VideoInfo = Awaited<ReturnType<Innertube['getInfo']>>;
 
 const clients: InnerTubeClient[] = ['IOS', 'WEB', 'ANDROID'];
+
+const aspectRatios = {
+    hd: toFixedNumber(16 / 9, 2),
+    sd: toFixedNumber(4 / 3, 2),
+    vertical: toFixedNumber(9 / 16, 2),
+} as const;
+
+const thumbnailUrls = {
+    path: 'https://i.ytimg.com/vi/',
+    hd: ['maxresdefault.jpg', 'hq720.jpg', 'maxres2.jpg'],
+    sd: ['sddefault.jpg', '0.jpg', 'hqdefault.jpg'],
+    vertical: ['oardefault.jpg'],
+    fallback: 'frame0.jpg'
+};
 
 export async function getBasicInfo(id: string, client: InnerTubeClient = 'IOS') {
     const ytdl = await Innertube.create({ cache: new UniversalCache(false) });
@@ -24,13 +38,12 @@ export async function getBasicInfo(id: string, client: InnerTubeClient = 'IOS') 
         playabilityStatus = parsePlayabilityStatus(info, c);
     }
 
-    if (playabilityStatus.playable) {
+    if (playabilityStatus.playable && basicInfo.id) {
         const format = [...streamingData?.adaptive_formats ?? [], ...streamingData?.formats ?? []].at(0);
         const width = format?.width ?? 0;
         const height = format?.height ?? 0;
-        const aspectRatio = calculateAspectRatio(width, height);
 
-        if (aspectRatio < 1) basicInfo.thumbnail?.unshift({ width, height, url: `https://i.ytimg.com/vi/${id}/frame0.jpg` });
+        basicInfo.thumbnail = getThumbnails(basicInfo.id, width, height);
     }
 
     return {
@@ -38,6 +51,19 @@ export async function getBasicInfo(id: string, client: InnerTubeClient = 'IOS') 
         playabilityStatus,
         streamingData
     };
+}
+
+export function getThumbnails(id: string, width: number, height: number) {
+    const aspectRatio = calculateAspectRatio(width, height);
+    const result = [thumbnailUrls.fallback];
+
+    const looseComparison = (a: number, b: number) => a === b || Math.round(a) === Math.round(b);
+
+    if (aspectRatio === aspectRatios.vertical) result.unshift(...thumbnailUrls.vertical);
+    else if (looseComparison(aspectRatio, aspectRatios.sd)) result.unshift(...thumbnailUrls.sd);
+    else if (looseComparison(aspectRatio, aspectRatios.hd)) result.unshift(...thumbnailUrls.hd);
+
+    return result.map(u => `${thumbnailUrls.path}${id}/${u}`)
 }
 
 function parsePlayabilityStatus({ playability_status }: VideoInfo, client: InnerTubeClient) {
@@ -58,10 +84,15 @@ function pickBasicInfo({ basic_info: videoDetails }: VideoInfo) {
         duration: videoDetails.duration,
         category: videoDetails.category ?? undefined,
         keywords: videoDetails.keywords,
-        thumbnail: videoDetails.thumbnail
+        thumbnail: videoDetails.thumbnail?.map(t => t.url)
     };
 }
 
 function calculateAspectRatio(width: number, height: number) {
-    return +((width / height) || 0).toFixed(1);
+    return toFixedNumber((width / height) || 0, 2);
+}
+
+function toFixedNumber(num: number, digits: number) {
+    const pow = Math.pow(10, digits);
+    return Math.round(num * pow) / pow;
 }
