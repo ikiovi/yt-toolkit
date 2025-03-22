@@ -1,0 +1,12 @@
+out/
+node_modules/
+
+.vscode/
+.gitignore
+.gitattributes
+
+README.md
+
+Dockerfile
+
+justfile
