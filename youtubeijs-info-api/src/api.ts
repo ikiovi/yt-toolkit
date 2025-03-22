@@ -16,11 +16,14 @@ server.get('/video', videoEndpointOptions, async (req, res) => {
 
 server.get('/thumbnail', thumbnailEndpointOptions, async (req, res) => {
     const { id, width, height } = req.query;
-    const thumbnails = getThumbnails(id, width, height)
+    const thumbnails = getThumbnails(id, width, height);
 
     for (const url of thumbnails) {
         const result = await fetch(url, { method: 'HEAD' });
-        if (!result.ok) continue;
+        if (!result.ok) {
+            logger.debug(`Thumbnail ${url} is invalid.`);
+            continue;
+        }
         return await res.redirect(url);
     }
 

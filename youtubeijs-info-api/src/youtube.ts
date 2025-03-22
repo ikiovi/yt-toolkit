@@ -40,10 +40,10 @@ export async function getBasicInfo(id: string, client: InnerTubeClient = 'IOS') 
 
     if (playabilityStatus.playable && basicInfo.id) {
         const format = [...streamingData?.adaptive_formats ?? [], ...streamingData?.formats ?? []].at(0);
-        const width = format?.width ?? 0;
-        const height = format?.height ?? 0;
+        basicInfo.width = format?.width ?? 0;
+        basicInfo.height = format?.height ?? 0;
 
-        basicInfo.thumbnail = getThumbnails(basicInfo.id, width, height);
+        basicInfo.thumbnail = getThumbnails(basicInfo.id, basicInfo.width, basicInfo.height);
     }
 
     return {
@@ -63,7 +63,7 @@ export function getThumbnails(id: string, width: number, height: number) {
     else if (looseComparison(aspectRatio, aspectRatios.sd)) result.unshift(...thumbnailUrls.sd);
     else if (looseComparison(aspectRatio, aspectRatios.hd)) result.unshift(...thumbnailUrls.hd);
 
-    return result.map(u => `${thumbnailUrls.path}${id}/${u}`)
+    return result.map(u => `${thumbnailUrls.path}${id}/${u}`);
 }
 
 function parsePlayabilityStatus({ playability_status }: VideoInfo, client: InnerTubeClient) {
@@ -71,7 +71,7 @@ function parsePlayabilityStatus({ playability_status }: VideoInfo, client: Inner
         client,
         playable: playability_status?.status === 'OK',
         status: playability_status?.status,
-        reason: playability_status?.reason
+        reason: playability_status?.reason || undefined
     };
 }
 
@@ -84,7 +84,9 @@ function pickBasicInfo({ basic_info: videoDetails }: VideoInfo) {
         duration: videoDetails.duration,
         category: videoDetails.category ?? undefined,
         keywords: videoDetails.keywords,
-        thumbnail: videoDetails.thumbnail?.map(t => t.url)
+        thumbnail: videoDetails.thumbnail?.map(t => t.url),
+        width: 0,
+        height: 0
     };
 }
 
