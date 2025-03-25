@@ -1,9 +1,17 @@
-import { Innertube, IStreamingData, UniversalCache } from 'youtubei.js';
+import { Innertube, UniversalCache, YTNodes, Log, Types, YT } from 'youtubei.js';
 
-type InnerTubeClient = Required<Parameters<Innertube['getInfo']>[1]>;
-type VideoInfo = Awaited<ReturnType<Innertube['getInfo']>>;
+type SortBy = Exclude<Types.SearchFilters['sort_by'], undefined>;
 
-const clients: InnerTubeClient[] = ['IOS', 'WEB', 'ANDROID'];
+Log.setLevel(Log.Level.ERROR);
+const cache = new UniversalCache(false);
+
+export const clients = [
+    'IOS', 'WEB', 'ANDROID',
+    'MWEB', 'YTMUSIC', 'YTMUSIC_ANDROID',
+    'YTSTUDIO_ANDROID', 'TV', 'TV_EMBEDDED',
+    'YTKIDS', 'WEB_EMBEDDED', 'WEB_CREATOR'
+] as Types.InnerTubeClient[];
+export const searchSorting = ['view_count', 'relevance', 'rating', 'upload_date'] as SortBy[];
 
 const aspectRatios = {
     hd: toFixedNumber(16 / 9, 2),
@@ -19,15 +27,15 @@ const thumbnailUrls = {
     fallback: 'frame0.jpg'
 };
 
-export async function getBasicInfo(id: string, client: InnerTubeClient = 'IOS') {
-    const ytdl = await Innertube.create({ cache: new UniversalCache(false) });
+export async function getBasicInfo(id: string, client: Types.InnerTubeClient = 'IOS') {
+    const ytdl = await Innertube.create({ cache });
     const info = await ytdl.getBasicInfo(id, client);
 
     let basicInfo = pickBasicInfo(info);
     let playabilityStatus = parsePlayabilityStatus(info, client);
 
     let streamingData = info.streaming_data;
-    for (const c of clients) {
+    for (const c of clients.slice(0, 3)) {
         if (streamingData) break;
         if (c === client) continue;
 
@@ -66,7 +74,34 @@ export function getThumbnails(id: string, width: number, height: number) {
     return result.map(u => `${thumbnailUrls.path}${id}/${u}`);
 }
 
-function parsePlayabilityStatus({ playability_status }: VideoInfo, client: InnerTubeClient) {
+export async function searchVideo(query: string, lang: string, sortBy: SortBy = 'view_count') {
+    const ytdl = await Innertube.create({ cache, lang });
+    const { videos } = await ytdl.search(query, { type: 'video', sort_by: sortBy });
+
+    return videos
+        .filter(v => v.type == YTNodes.Video.type) // No shorts yet
+        .map(v => parseSearchVideoNode(v.as(YTNodes.Video)));
+}
+
+function parseSearchVideoNode(video: YTNodes.Video) {
+    const id = video.video_id;
+    const { width, height } = (video.thumbnails.at(0) ?? { width: 0, height: 0 });
+    return {
+        id,
+        title: video.title.text ?? '<Untitled>',
+        author: {
+            id: video.author.id,
+            name: video.author.name
+        },
+        thumbnails: getThumbnails(id, width, height),
+        publishedLabel: video.published?.text,
+        viewCountLabel: video.view_count?.text,
+        shortViewCountLabel: video.short_view_count?.text,
+        durationLabel: video.length_text?.text
+    };
+}
+
+function parsePlayabilityStatus({ playability_status }: YT.VideoInfo, client: Types.InnerTubeClient) {
     return {
         client,
         playable: playability_status?.status === 'OK',
@@ -75,7 +110,7 @@ function parsePlayabilityStatus({ playability_status }: VideoInfo, client: Inner
     };
 }
 
-function pickBasicInfo({ basic_info: videoDetails }: VideoInfo) {
+function pickBasicInfo({ basic_info: videoDetails }: YT.VideoInfo) {
     return {
         id: videoDetails.id,
         title: videoDetails.title,

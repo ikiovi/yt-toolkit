@@ -1,8 +1,8 @@
 import fastify from 'fastify';
 import { logger } from './logger';
-import { thumbnailEndpointOptions, videoEndpointOptions } from './schema';
+import { searchEndpointOptions, thumbnailEndpointOptions, videoEndpointOptions } from './schema';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import { getBasicInfo, getThumbnails } from './youtube';
+import { getBasicInfo, getThumbnails, searchVideo } from './youtube';
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>();
 
@@ -28,6 +28,12 @@ server.get('/thumbnail', thumbnailEndpointOptions, async (req, res) => {
     }
 
     await res.code(404).send();
+});
+
+server.get('/search', searchEndpointOptions, async (req, res) => {
+    const { q, lang, searchBy } = req.query;
+    const result = await searchVideo(q, lang, searchBy);
+    await res.code(200).send(result);
 });
 
 server.listen({ port: 8080, host: '0.0.0.0' }, (err, address) => {
