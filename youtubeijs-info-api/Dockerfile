@@ -14,4 +14,6 @@ COPY --link package*.json ./
 COPY --from=appbuild /app/node_modules ./node_modules
 COPY --from=appbuild /app/out ./out
 
+ENV YT_CACHE_PATH /tmp
+
 ENTRYPOINT ["npm", "start"]
