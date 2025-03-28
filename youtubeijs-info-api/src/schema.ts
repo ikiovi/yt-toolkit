@@ -1,6 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { RouteShorthandOptions } from 'fastify/types/route';
-import { clients, searchSorting } from './youtube';
+import { clients, searchSorting } from './youtube/constants';
 
 const YoutubeIdSchema = Type.String({ pattern: '^[a-zA-Z0-9-_]{11}$' });
 
@@ -18,7 +18,7 @@ export const ThumbnailQuerySchema = Type.Object({
 export const SearchQuerySchema = Type.Object({
     q: Type.String(),
     lang: Type.String({ default: 'en' }),
-    searchBy: Type.Union(searchSorting.map(v => Type.Literal(v)), { default: searchSorting[0] })
+    sortBy: Type.Union(searchSorting.map(v => Type.Literal(v)), { default: searchSorting[0] })
 });
 
 export const videoEndpointOptions = {

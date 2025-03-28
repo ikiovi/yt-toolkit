@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc --project tsconfig.json",
-    "start": "node out/api.js"
+    "start": "node out/index.js"
   },
   "keywords": [],
   "author": "",
