@@ -1,6 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { RouteShorthandOptions } from 'fastify/types/route';
-import { clients, searchSorting } from './youtube/constants';
+import { clients, searchSorting } from './youtube/constants.ts';
 
 const YoutubeIdSchema = Type.String({ pattern: '^[a-zA-Z0-9-_]{11}$' });
 

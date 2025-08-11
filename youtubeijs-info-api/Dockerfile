@@ -1,19 +1,19 @@
-FROM node:23.7.0-alpine AS appbuild
+# https://docs.deno.com/runtime/reference/docker/#use-multi-stage-builds
+FROM denoland/deno:alpine-2.4.3 AS builder
 
 WORKDIR /app
-COPY --link package*.json ./
-RUN npm ci --omit=dev
-COPY --link . .
+COPY . .
 
-RUN npm run build
+ENV DENO_DIR build/cache
 
-FROM node:23.7.0-alpine
+RUN deno install --entrypoint src/main.ts
+
+FROM denoland/deno:alpine-2.4.3
 
 WORKDIR /app
-COPY --link package*.json ./
-COPY --from=appbuild /app/node_modules ./node_modules
-COPY --from=appbuild /app/out ./out
+COPY --from=builder /app .
 
+ENV DENO_DIR build/cache
 ENV YT_CACHE_PATH /tmp
 
-ENTRYPOINT ["npm", "start"]
+ENTRYPOINT [ "deno", "task", "start" ]

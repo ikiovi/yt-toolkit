@@ -1,7 +1,8 @@
 import { colorConsole } from 'tracer';
+import { env } from "./env.ts";
 
 export const logger = colorConsole({
-    level: process.env.LOG_LEVEL ?? 'debug',
-    format: (process.env.DISABLE_LOG_TIMESTAMP === 'true' ? '' : '{{timestamp}} ') + '[{{title}}] ({{file}}:{{line}}): {{message}}',
-    dateformat: process.env.DATE_FORMAT ?? 'HH:MM dd.mm.yyyy'
+    level: env.LOG_LEVEL,
+    format: (env.DISABLE_LOG_TIMESTAMP ? '' : '{{timestamp}} ') + '[{{title}}] ({{file}}:{{line}}): {{message}}',
+    dateformat: env.DATE_FORMAT
 });

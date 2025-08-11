@@ -1,26 +1,27 @@
-import { Innertube, YTNodes, Log, Types, YT } from 'youtubei.js';
-import { defaultConfig, clients, SortBy, thumbnailUrls, aspectRatios } from './constants';
-import { calculateAspectRatio } from './utils';
+import { env } from "../env.ts";
+import { Log, Innertube, YTNodes, type Types, type YT } from "youtubei.js";
+import { defaultConfig, clients, SortBy, thumbnailUrls, aspectRatios } from './constants.ts';
+import { calculateAspectRatio } from './utils.ts';
 
-Log.setLevel(+(process.env.YT_LOG_LEVEL ?? Log.Level.ERROR));
+Log.setLevel(Number.isNaN(env.YT_LOG_LEVEL) ? Log.Level.ERROR : env.YT_LOG_LEVEL);
 
 export async function getBasicInfo(id: string, client: Types.InnerTubeClient) {
     const ytdl = await Innertube.create(defaultConfig);
-    const info = await ytdl.getBasicInfo(id, client);
+    const info = await ytdl.getBasicInfo(id, { client });
 
     let basicInfo = pickBasicInfo(info);
     let playabilityStatus = parsePlayabilityStatus(info, client);
 
     let rawStreamingData = info.streaming_data;
-    for (const c of clients.slice(0, 3)) {
+    for (const newClient of clients.slice(0, 3)) {
         if (rawStreamingData) break;
-        if (c === client) continue;
+        if (newClient === client) continue;
 
-        const info = await ytdl.getBasicInfo(id, c);
+        const info = await ytdl.getBasicInfo(id, { client: newClient });
 
         basicInfo = pickBasicInfo(info);
         rawStreamingData = info.streaming_data;
-        playabilityStatus = parsePlayabilityStatus(info, c);
+        playabilityStatus = parsePlayabilityStatus(info, newClient);
     }
 
     if (playabilityStatus.playable && basicInfo.id) {
@@ -33,7 +34,8 @@ export async function getBasicInfo(id: string, client: Types.InnerTubeClient) {
 
     return {
         basicInfo: playabilityStatus.playable ? basicInfo : undefined,
-        playabilityStatus
+        playabilityStatus,
+        _rawStreamingData: rawStreamingData
     };
 }
 

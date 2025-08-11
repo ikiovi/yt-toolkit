@@ -1,8 +1,8 @@
 import fastify from 'fastify';
-import { logger } from './logger';
-import { searchEndpointOptions, thumbnailEndpointOptions, videoEndpointOptions } from './schema';
 import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import { getBasicInfo, getThumbnails, searchVideo } from './youtube/api';
+import { logger } from './logger.ts';
+import { searchEndpointOptions, thumbnailEndpointOptions, videoEndpointOptions } from './schema.ts';
+import { getBasicInfo, getThumbnails, searchVideo } from './youtube/api.ts';
 
 const server = fastify().withTypeProvider<TypeBoxTypeProvider>();
 
@@ -39,5 +39,5 @@ server.get('/search', searchEndpointOptions, async (req, res) => {
 server.listen({ port: 8080, host: '0.0.0.0' }, (err, address) => {
     if (!err) return logger.info(`Server listening at ${address}`);
     logger.error(err);
-    process.exit(1);
+    Deno.exit(1);
 });

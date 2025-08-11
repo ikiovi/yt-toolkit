@@ -1,11 +1,11 @@
-import { Types, UniversalCache } from 'youtubei.js';
-import { toFixedNumber } from './utils';
+import { UniversalCache, type Types } from 'youtubei.js';
+import { toFixedNumber } from "./utils.ts";
+import { env } from "../env.ts";
 
 export type SortBy = Exclude<Types.SearchFilters['sort_by'], undefined>;
 
-const cachePath = process.env.YT_CACHE_PATH;
 export const defaultConfig: Types.InnerTubeConfig = {
-    cache: new UniversalCache(Boolean(cachePath), cachePath),
+    cache: new UniversalCache(Boolean(env.YT_CACHE_PATH), env.YT_CACHE_PATH),
     generate_session_locally: false,
     retrieve_player: false,
     enable_safety_mode: false
