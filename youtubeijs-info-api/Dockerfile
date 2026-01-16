@@ -6,7 +6,7 @@ COPY . .
 
 ENV DENO_DIR build/cache
 
-RUN deno install --entrypoint src/main.ts
+RUN deno install --entrypoint src/index.ts
 
 FROM denoland/deno:alpine-2.4.3
 
