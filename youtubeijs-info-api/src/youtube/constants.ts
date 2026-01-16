@@ -7,6 +7,7 @@ export type SortBy = Exclude<Types.SearchFilters['sort_by'], undefined>;
 export const defaultConfig: Types.InnerTubeConfig = {
     cache: new UniversalCache(Boolean(env.YT_CACHE_PATH), env.YT_CACHE_PATH),
     generate_session_locally: false,
+    enable_session_cache: true,
     retrieve_player: false,
     enable_safety_mode: false
 };
@@ -19,6 +20,20 @@ export const clients: Types.InnerTubeClient[] = [
 ];
 
 export const searchSorting: SortBy[] = ['relevance', 'view_count', 'rating', 'upload_date'];
+
+export const qualityMapping: Readonly<Record<string, number>> = {
+    none: 0,
+    AUDIO_QUALITY_ULTRALOW: 1,
+    AUDIO_QUALITY_LOW: 2,
+    AUDIO_QUALITY_MEDIUM: 3,
+    AUDIO_QUALITY_HIGH: 4,
+    tiny: 1,
+    small: 2,
+    medium: 3,
+    large: 4,
+    hd720: 5,
+    hd1080: 6
+};
 
 export const aspectRatios = {
     hd: toFixedNumber(16 / 9, 2),

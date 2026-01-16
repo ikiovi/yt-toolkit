@@ -1,4 +1,4 @@
-import { Type } from '@sinclair/typebox';
+import { TObject, TProperties, Type } from '@sinclair/typebox';
 import { RouteShorthandOptions } from 'fastify/types/route';
 import { clients, searchSorting } from './youtube/constants.ts';
 
@@ -21,20 +21,14 @@ export const SearchQuerySchema = Type.Object({
     sortBy: Type.Union(searchSorting.map(v => Type.Literal(v)), { default: searchSorting[0] })
 });
 
-export const videoEndpointOptions = {
-    schema: {
-        querystring: VideoQuerySchema,
-    }
-} satisfies RouteShorthandOptions;
+export const videoEndpointOptions = toQueryStringOptions(VideoQuerySchema);
+export const thumbnailEndpointOptions = toQueryStringOptions(ThumbnailQuerySchema);
+export const searchEndpointOptions = toQueryStringOptions(SearchQuerySchema);
 
-export const thumbnailEndpointOptions = {
-    schema: {
-        querystring: ThumbnailQuerySchema
-    }
-} satisfies RouteShorthandOptions;
-
-export const searchEndpointOptions = {
-    schema: {
-        querystring: SearchQuerySchema
-    }
-} satisfies RouteShorthandOptions;
+function toQueryStringOptions<T extends TProperties>(querySchema: TObject<T>) {
+    return {
+        schema: {
+            querystring: querySchema
+        }
+    } satisfies RouteShorthandOptions;
+}
