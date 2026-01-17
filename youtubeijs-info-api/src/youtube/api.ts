@@ -24,8 +24,8 @@ export async function getBasicInfo(id: string, client: Types.InnerTubeClient) {
         playabilityStatus = normalizePlayabilityStatus(info, newClient);
     }
 
-    const basicInfoSizes: { width: number, height: number } = { width: 0, height: 0 };
     let thumbnail: string[] = [];
+    const basicInfoSizes = { width: 0, height: 0 };
 
     if (playabilityStatus.playable && basicInfo?.id) {
         const format = streamingData?.formats.find(f => f.hasVideo);
