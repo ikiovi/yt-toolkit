@@ -2,7 +2,7 @@
   "tasks": {
     "start":"deno run -R -W -E -N -S --cached-only src/index.ts",
     "dev": "deno run -R -W -E -N -S --watch src/index.ts",
-    "install-deps": "deno install --entrypoint src/index.ts",
+    "install-deps": "deno install",
     "install-deps-force": "deno run install-deps -r",
     "update-deps": "deno outdated -u",
     "update-deps-force": "deno run update-deps --latest"
