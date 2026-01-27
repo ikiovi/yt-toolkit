@@ -24,7 +24,7 @@ export async function getBasicInfo(id: string, client: Types.InnerTubeClient) {
         playabilityStatus = normalizePlayabilityStatus(info, newClient);
     }
 
-    let thumbnail: string[] = [];
+    let thumbnail = thumbnailUrls.fallback[0];
     const basicInfoSizes = { width: 0, height: 0 };
 
     if (playabilityStatus.playable && basicInfo?.id) {
@@ -32,8 +32,14 @@ export async function getBasicInfo(id: string, client: Types.InnerTubeClient) {
 
         basicInfoSizes.width = format?.width || basicInfoSizes.width;
         basicInfoSizes.height = format?.height || basicInfoSizes.height;
+        const aspectRatio = calculateAspectRatio(basicInfoSizes.width, basicInfoSizes.height);
 
-        thumbnail = getThumbnails(basicInfo.id, basicInfoSizes.width, basicInfoSizes.height);
+        thumbnail = basicInfo.thumbnails?.toSorted((a, b) => {
+            const aspectDiffA = Math.abs(calculateAspectRatio(a.width, a.height) - aspectRatio);
+            const aspectDiffB = Math.abs(calculateAspectRatio(b.width, b.height) - aspectRatio);
+            if (aspectDiffA !== aspectDiffB) return aspectDiffA - aspectDiffB;
+            return (a.width * a.height) - (b.width * b.height)
+        }).at(0)?.url ?? thumbnail;
     }
 
     return {
@@ -69,7 +75,6 @@ export function getThumbnails(id: string, width: number, height: number) {
 
 function mapSearchVideoNode(video: YTNodes.Video) {
     const id = video.video_id;
-    const { width, height } = (video.thumbnails.at(0) ?? { width: 0, height: 0 });
     return {
         id,
         title: video.title.text ?? '<Untitled>',
@@ -77,7 +82,8 @@ function mapSearchVideoNode(video: YTNodes.Video) {
             id: video.author.id,
             name: video.author.name
         },
-        thumbnails: getThumbnails(id, width, height),
+        thumbnail: video.thumbnails.at(0)?.url ?? thumbnailUrls.fallback[0],
+        thumbnails: video.thumbnails,
         publishedLabel: video.published?.text,
         viewCountLabel: video.view_count?.text,
         shortViewCountLabel: video.short_view_count?.text,
@@ -139,5 +145,6 @@ function mapBasicInfo({ basic_info }: YT.VideoInfo | YTMusic.TrackInfo) {
         duration: basic_info.duration ?? 0,
         category: basic_info.category || undefined,
         keywords: basic_info.keywords ?? [],
+        thumbnails: basic_info.thumbnail
     };
 }
