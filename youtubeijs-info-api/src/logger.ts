@@ -1,5 +1,5 @@
 import { colorConsole } from 'tracer';
-import { env } from "./env.ts";
+import { env } from './env.ts';
 
 export const logger = colorConsole({
     level: env.LOG_LEVEL,

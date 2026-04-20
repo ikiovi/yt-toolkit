@@ -1,8 +1,5 @@
-export function calculateAspectRatio(width: number, height: number) {
-    return toFixedNumber((width / height) || 0, 2);
-}
-
-export function toFixedNumber(num: number, digits: number) {
-    const pow = Math.pow(10, digits);
-    return Math.round(num * pow) / pow;
+export function calcAspectRatio(width: number, height: number) {
+    // .toFixed returns string...
+    const pow = Math.pow(10, 2);
+    return Math.round((width / height) * pow) / pow;
 }

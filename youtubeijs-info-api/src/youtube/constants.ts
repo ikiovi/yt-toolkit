@@ -1,6 +1,6 @@
 import { UniversalCache, type Types } from 'youtubei.js';
-import { toFixedNumber } from "./utils.ts";
 import { env } from "../env.ts";
+import { calcAspectRatio } from "./utils.ts";
 
 export type SortBy = Exclude<Types.SearchFilters['sort_by'], undefined>;
 
@@ -36,9 +36,9 @@ export const qualityMapping: Readonly<Record<string, number>> = {
 };
 
 export const aspectRatios = {
-    hd: toFixedNumber(16 / 9, 2),
-    sd: toFixedNumber(4 / 3, 2),
-    vertical: toFixedNumber(9 / 16, 2),
+    hd: calcAspectRatio(16, 9),
+    sd: calcAspectRatio(4, 3),
+    vertical: calcAspectRatio(9, 16),
 } as const;
 
 export const thumbnailUrls = {

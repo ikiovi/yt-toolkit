@@ -1,7 +1,7 @@
 import { env } from "../env.ts";
 import { Log, Innertube, YTNodes, type Types, type YT, IStreamingData, YTMusic, Player } from "youtubei.js";
 import { defaultConfig, clients, SortBy, thumbnailUrls, aspectRatios, qualityMapping } from './constants.ts';
-import { calculateAspectRatio } from './utils.ts';
+import { calcAspectRatio } from './utils.ts';
 
 Log.setLevel(Number.isNaN(env.YT_LOG_LEVEL) ? Log.Level.ERROR : env.YT_LOG_LEVEL);
 
@@ -32,11 +32,11 @@ export async function getBasicInfo(id: string, client: Types.InnerTubeClient) {
 
         basicInfoSizes.width = format?.width || basicInfoSizes.width;
         basicInfoSizes.height = format?.height || basicInfoSizes.height;
-        const aspectRatio = calculateAspectRatio(basicInfoSizes.width, basicInfoSizes.height);
+        const aspectRatio = calcAspectRatio(basicInfoSizes.width, basicInfoSizes.height);
 
         thumbnail = basicInfo.thumbnails?.toSorted((a, b) => {
-            const aspectDiffA = Math.abs(calculateAspectRatio(a.width, a.height) - aspectRatio);
-            const aspectDiffB = Math.abs(calculateAspectRatio(b.width, b.height) - aspectRatio);
+            const aspectDiffA = Math.abs(calcAspectRatio(a.width, a.height) - aspectRatio);
+            const aspectDiffB = Math.abs(calcAspectRatio(b.width, b.height) - aspectRatio);
             if (aspectDiffA !== aspectDiffB) return aspectDiffA - aspectDiffB;
             return (a.width * a.height) - (b.width * b.height)
         }).at(0)?.url ?? thumbnail;
@@ -51,8 +51,8 @@ export async function getBasicInfo(id: string, client: Types.InnerTubeClient) {
     };
 }
 
-export async function searchVideo(query: string, lang: string, sortBy: SortBy) {
-    const ytdl = await Innertube.create({ ...defaultConfig, lang });
+export async function searchVideo(query: string, sortBy: SortBy) {
+    const ytdl = await Innertube.create(defaultConfig);
     const { videos } = await ytdl.search(query, { type: 'video', sort_by: sortBy });
 
     return videos
@@ -61,7 +61,7 @@ export async function searchVideo(query: string, lang: string, sortBy: SortBy) {
 }
 
 export function getThumbnails(id: string, width: number, height: number) {
-    const aspectRatio = calculateAspectRatio(width, height);
+    const aspectRatio = calcAspectRatio(width, height);
     const result = [thumbnailUrls.fallback];
 
     const looseComparison = (a: number, b: number) => a === b || Math.round(a) === Math.round(b);

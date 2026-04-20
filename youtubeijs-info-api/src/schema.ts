@@ -17,7 +17,6 @@ export const ThumbnailQuerySchema = Type.Object({
 
 export const SearchQuerySchema = Type.Object({
     q: Type.String(),
-    lang: Type.String({ default: 'en' }),
     sortBy: Type.Union(searchSorting.map(v => Type.Literal(v)), { default: searchSorting[0] })
 });
 

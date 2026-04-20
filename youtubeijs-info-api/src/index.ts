@@ -31,8 +31,8 @@ server.get('/thumbnail', thumbnailEndpointOptions, async (req, res) => {
 });
 
 server.get('/search', searchEndpointOptions, async (req, res) => {
-    const { q, lang, sortBy } = req.query;
-    const result = await searchVideo(q, lang, sortBy);
+    const { q, sortBy } = req.query;
+    const result = await searchVideo(q, sortBy);
     await res.code(200).send(result);
 });
 
