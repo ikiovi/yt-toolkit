@@ -2,7 +2,7 @@ import { UniversalCache, type Types } from 'youtubei.js';
 import { env } from "../env.ts";
 import { calcAspectRatio } from "./utils.ts";
 
-export type SortBy = Exclude<Types.SearchFilters['sort_by'], undefined>;
+export type SortBy = Exclude<Types.SearchFilters['prioritize'], undefined>;
 
 export const defaultConfig: Types.InnerTubeConfig = {
     cache: new UniversalCache(Boolean(env.YT_CACHE_PATH), env.YT_CACHE_PATH),

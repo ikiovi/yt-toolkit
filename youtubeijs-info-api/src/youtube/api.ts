@@ -53,7 +53,7 @@ export async function getBasicInfo(id: string, client: Types.InnerTubeClient) {
 
 export async function searchVideo(query: string, sortBy: SortBy) {
     const ytdl = await Innertube.create(defaultConfig);
-    const { videos } = await ytdl.search(query, { type: 'video', sort_by: sortBy });
+    const { videos } = await ytdl.search(query, { type: 'video', prioritize: sortBy });
 
     return videos
         .filter(v => v.type == YTNodes.Video.type)
