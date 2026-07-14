@@ -9,10 +9,11 @@
   },
   "imports": {
     "@fastify/type-provider-typebox": "npm:@fastify/type-provider-typebox@^6.1.0",
-    "@sinclair/typebox": "npm:@sinclair/typebox@^0.34.49",
-    "fastify": "npm:fastify@^5.8.5",
+    "@sinclair/typebox": "npm:@sinclair/typebox@^0.34.52",
+    "@std/json": "jsr:@std/json@^1.1.0",
+    "fastify": "npm:fastify@^5.10.0",
     "tracer": "npm:tracer@^1.3.0",
-    "youtubei.js": "npm:youtubei.js@^17.0.1"
+    "youtubei.js": "npm:youtubei.js@^17.2.0"
   },
   "compilerOptions": {
     "strict": true,
